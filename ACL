@@ -1,0 +1,177 @@
+R1
+
+enable
+conf t
+hostname R1
+no ip domain-lookup
+line con 0
+logging synch
+exit
+int Gig0/0
+ip address 1.1.1.1 255.255.255.0
+no shutdown
+exit
+!
+router rip
+version 2
+no auto-summary
+network 1.0.0.0
+end 
+
+*****************************************************
+
+R2
+
+enable
+conf t
+hostname R2
+no ip domain-lookup
+line con 0
+logging synch
+exit
+int Gig0/0
+ip address 1.2.1.2 255.255.255.0
+no shutdown
+exit
+!
+router rip
+version 2
+no auto-summary
+network 1.0.0.0
+end
+
+*****************************************************
+R3
+
+enable
+conf t
+hostname R3
+no ip domain-lookup
+line con 0
+logging synch
+exit
+int Gig0/0
+ip address 2.3.2.3 255.255.255.0
+no shutdown
+exit
+!
+router rip
+version 2
+no auto-summary
+network 2.0.0.0
+end
+
+******************************************************
+R4
+
+enable
+conf t
+hostname R4
+no ip domain-lookup
+line con 0
+logging synch
+exit
+int Gig0/0
+ip address 2.4.2.4 255.255.255.0
+no shutdown
+exit
+!
+router rip
+version 2
+no auto-summary
+network 2.0.0.0
+end
+
+******************************************************
+SW-1
+
+enable
+conf t
+ip routing
+hostname Sw1
+no ip domain-lookup
+line con 0
+logging synch
+exit
+int range gig 0/1-2
+sh
+exit
+!
+interface gig0/2
+no switchport
+ip address 1.1.1.11 255.255.255.0
+no sh
+exit
+!
+interface gig0/1
+no switchport
+ip address 1.2.1.11 255.255.255.0
+no sh
+exit
+!
+interface gig0/0
+no switchport
+ip address 1.2.2.11 255.255.255.0
+no sh
+exit
+!
+router rip
+version 2
+no auto-summary
+network 1.0.0.0
+end
+!
+enable
+conf t
+access-list 100 deny tcp 1.1.1.0 0.0.0.255 2.4.2.0 0.0.0.255 eq 23
+access-list 100 permit ip any any
+int gig0/2
+ip access-group 100 in
+exit
+
+**************************************************
+SW-2
+enable
+conf t
+ip routing
+hostname Sw2
+no ip domain-lookup
+line con 0
+logging synch
+exit
+int range gig 0/1-2
+sh
+exit
+!
+interface gig0/0
+no switchport
+ip address 1.2.2.22 255.255.255.0
+no sh
+exit
+access-list 1 deny   1.1.1.1
+access-list 1 permit any
+!
+interface gig0/1
+no switchport
+ip address 2.4.2.22 255.255.255.0
+no sh
+ip access-group 1 out
+exit
+!
+interface gig0/2
+no switchport
+ip address 2.3.2.22 255.255.255.0
+no sh
+exit
+!
+router rip
+version 2
+no auto-summary
+network 1.0.0.0
+network 2.0.0.0
+end
+!
+
+
+
+
