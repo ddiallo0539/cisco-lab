@@ -1,7 +1,35 @@
+Sécurité des ports avec des adresses MAC apprises dynamiquement et statiquement
+Vous pouvez utiliser la sécurité des ports avec des adresses MAC apprises dynamiquement et statiquement pour limiter le trafic d'entrée 
+d'un port en limitant les adresses MAC autorisées à envoyer du trafic dans le port. Lorsque vous attribuez des adresses MAC sécurisées 
+à un port sécurisé, le port ne transfère pas le trafic d'entrée dont les adresses source ne font pas partie du groupe d'adresses définies. 
+Si vous limitez le nombre d'adresses MAC sécurisées à une et attribuez une seule adresse MAC sécurisée, le périphérique connecté à ce port 
+dispose de la totalité de la bande passante du port.
+
+Une violation de sécurité se produit dans l'une de ces situations :
+
+• Lorsque le nombre maximal d'adresses MAC sécurisées est atteint sur un port sécurisé et que l'adresse MAC source du trafic entrant est différente 
+de l'une des adresses MAC sécurisées identifiées, la sécurité du port applique le mode de violation configuré.
+
+• Si le trafic avec une adresse MAC sécurisée qui est configurée ou apprise sur un port sécurisé tente d'accéder à un autre port sécurisé dans le même VLAN, 
+applique le mode de violation configuré.
+
+Lors de la configuration des modes de violation de la sécurité des ports, notez les informations suivantes :
+
+• protect — Supprime les paquets avec des adresses source inconnues jusqu'à ce que vous supprimiez un nombre suffisant d'adresses MAC sécurisées pour 
+tomber en dessous de la valeur maximale.
+
+• restrict : abandonne les paquets avec des adresses source inconnues jusqu'à ce que vous supprimiez un nombre suffisant d'adresses 
+MAC sécurisées pour passer en dessous de la valeur maximale et provoquer l'incrémentation du compteur SecurityViolation.
+
+• shutdown — Met immédiatement l'interface dans l'état error-disabled et envoie une notification d'interruption SNMP.
+
+**********************************************
+
 Host1
 
 enable
 conf t
+no ip domain-lookup
 hostname Host1
 int gig0/0
 ip add 10.100.1.3 255.255.255.0
@@ -15,6 +43,7 @@ Host2
 
 enable
 conf t
+no ip domain-lookup
 hostname Host2
 int gig0/0
 ip add 10.100.1.8 255.255.255.0
@@ -28,6 +57,7 @@ Host3
 
 enable
 conf t
+no ip domain-lookup
 hostname Host3
 int gig0/0
 ip add 10.100.1.6 255.255.255.0
@@ -61,7 +91,7 @@ no sh
 exit
 !
 int gig0/1
-switchport port-security 
+switchport port-security                  
 exit
 
 ************************************************
