@@ -1,0 +1,131 @@
+Sw1
+
+enable
+conf t
+no ip domain-lookup
+hostname Sw1
+vlan 123
+exit
+inter vlan 123
+ip add 10.123.1.5 255.255.255.0
+no sh
+exit
+!
+interface GigabitEthernet0/0
+switchport access vlan 123
+switchport mode access
+media-type rj45
+negotiation auto
+ip dhcp snooping trust
+!
+exit
+!
+interface GigabitEthernet0/1
+switchport access vlan 123
+switchport mode access
+media-type rj45
+negotiation auto
+!
+exit
+!
+!
+interface GigabitEthernet0/2
+switchport access vlan 123
+switchport mode access
+media-type rj45
+negotiation auto
+exit
+ip dhcp snooping
+ip dhcp snooping vlan 123
+no ip dhcp snooping information option
+ip arp inspection
+ip arp inspection vlan 123
+arp access-list dhcp
+permit ip host 10.123.1.1 mac host 5000.0003.0000
+ip arp inspection filter dhcp vlan  123
+
+Sw1#show ip arp inspection inter gig 0/0
+
+ Interface        Trust State     Rate (pps)    Burst Interval
+ ---------------  -----------     ----------    --------------
+ Gi0/0            Untrusted               15                 1
+
+Sw1#show ip arp inspection inter gig 0/1
+
+ Interface        Trust State     Rate (pps)    Burst Interval
+ ---------------  -----------     ----------    --------------
+ Gi0/1            Untrusted               15                 1
+
+Sw1#show ip arp inspection inter gig 0/2
+
+ Interface        Trust State     Rate (pps)    Burst Interval
+ ---------------  -----------     ----------    --------------
+ Gi0/2            Untrusted               15                 1
+
+********************************************
+R1
+
+enable
+conf t
+hostname Client1-DHCP
+no ip domain-lookup
+interface GigabitEthernet0/0
+ip address dhcp
+duplex auto
+speed auto
+media-type rj45
+end
+
+*********************************************
+R2
+
+enable
+conf t
+hostname Client2-DHCP
+no ip domain-lookup
+interface GigabitEthernet0/0
+ip address dhcp
+duplex auto
+speed auto
+media-type rj45
+end
+
+*********************************************
+DHCP-SERVER
+
+enable
+conf t
+hostname DHCP-SERVER
+!
+interface GigabitEthernet0/0
+ip address 10.123.1.1 255.255.255.0
+no sh
+exit
+!
+ip dhcp pool Vlan10
+network 10.123.1.0 255.255.255.0
+default-router 10.123.1.1 255.255.255.0
+ip dhcp excluded-address 10.123.1.5 10.123.1.10
+
+***********************************************
+Sw2
+
+enable
+conf t
+hostname Sw2
+no ip domain-lookup
+vlan 123
+exit
+!
+interface Vlan 123
+ip address 10.123.1.6 255.255.255.0
+no sh
+exit
+!
+interface GigabitEthernet0/0
+switchport access vlan 123
+switchport mode access
+no sh
+exit
+!
+*********************************************
