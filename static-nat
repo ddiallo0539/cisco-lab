@@ -1,0 +1,152 @@
+**************************************************************
+
+Sw2
+
+enable
+conf t
+hostname Sw2
+no ip domain-lookup
+vlan 10
+exit
+inter gig0/3
+switchport trunk encapsulation dot1q
+switchport mode trunk
+no sh
+exit
+!
+interface vlan 10
+ip add 10.1.10.10 255.255.255.0
+no sh
+exit
+!
+int gig0/2
+switchport mode access
+switchport access vlan 10
+no sh
+exit
+!
+*********************************************
+Sw1
+
+enable
+conf t
+hostname Sw1
+no ip domain-lookup
+vlan 10
+exit
+int gig 0/1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk allowed vlan 10
+no sh
+exit
+!
+int gig0/2
+switchport mode access
+switchport access vlan 10
+no sh
+exit
+!
+int gig0/0
+switchport mode access
+switchport access vlan 10
+no sh
+exit
+!
+inter vlan 10
+ip add 10.1.10.11 255.255.255.0
+no sh
+exit
+!
+****************************************
+Client-1
+
+enable
+conf t
+hostname Client-1
+no ip domain-lookup
+int gig0/0
+ip add 10.1.10.20 255.255.255.0
+no sh
+exit
+!
+ip routing
+router rip
+network 10.1.10.0
+!
+***************************************
+Client-2
+
+enable
+conf t
+hostname Client-2
+no ip domain-lookup
+int gig0/0
+ip add 10.1.10.21 255.255.255.0
+no sh
+exit
+!
+ip routing
+router rip
+network 10.1.10.0
+!
+*************************************
+R1
+
+enable
+conf t
+no ip domain-lookup
+hostname R1
+ip routing
+router rip
+network 10.1.10.0
+network 99.99.99.0
+int gig0/0
+ip add 10.1.10.15 255.255.255.0
+no sh
+exit
+!
+int gig0/1
+ip add 99.99.99.1 255.255.255.0
+no sh
+exit
+!
+int gig0/0
+ip nat inside
+exit
+!
+int gig0/1
+ip nat outside
+exit
+!
+ip nat inside source static 10.1.10.20 99.99.99.25
+
+*************************************
+ISP
+
+enable
+conf t
+no ip domain-lookup
+hostname ISP
+int gig0/0
+ip add 99.99.99.2 255.255.255.0
+no sh
+exit
+!
+ip routing
+router rip
+network 99.99.99.0
+exit
+
+**************************************
+R1#show ip nat translations
+Pro Inside global      Inside local       Outside local      Outside global
+icmp 99.99.99.25:3     10.1.10.20:3       99.99.99.2:3       99.99.99.2:3
+--- 99.99.99.25        10.1.10.20         ---                ---
+
+R1#show ip nat translations verbose
+Pro Inside global      Inside local       Outside local      Outside global
+--- 99.99.99.25        10.1.10.20         ---                ---
+    create 00:03:52, use 00:02:07 timeout:0,
+    flags:
+static, use_count: 0, entry-id: 1, lc_entries: 0
